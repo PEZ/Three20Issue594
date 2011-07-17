@@ -24,13 +24,34 @@
   self.variableHeightRows = NO;
   self.tableView.rowHeight = 64;
   TTListDataSource* dataSource = [[[TTListDataSource alloc] init] autorelease];
-  [dataSource.items addObject:[TTTableTextItem itemWithText:@"Level 1" URL:kLevel1URL]];
+  if (!_isLoggedIn) {
+    [dataSource.items addObject:[TTTableActivityItem itemWithText:@"Logging in..."]];
+  }
+  else {
+    [dataSource.items addObject:[TTTableTextItem itemWithText:@"Level 1" URL:kLevel1URL]];
+  }
   self.dataSource = dataSource;
+}
+
+- (void)logIn:(NSTimer*)timer {
+  _isLoggedIn = YES;
+  [self invalidateModel];
+}
+
+- (void) scheduleLoggedInTimer {
+  NSTimer* timer = [NSTimer timerWithTimeInterval:2
+                                           target:self
+                                         selector:@selector(logIn:)
+                                         userInfo:nil
+                                          repeats:NO];
+  [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
+
 }
 
 - (void)viewDidLoad {
   [super viewDidLoad];
   [self invalidateModel];
+  [self scheduleLoggedInTimer];
 }
 
 @end
